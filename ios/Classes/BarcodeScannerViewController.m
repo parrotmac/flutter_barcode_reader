@@ -27,6 +27,9 @@
                                   views:@{@"previewView": _previewView}]];
     self.scanner = [[MTBBarcodeScanner alloc] initWithPreviewView:_previewView];
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancel)];
+    if(self.hasTorch) {
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Flash On" style:UIBarButtonItemStylePlain target:self action:@selector(toggle)];
+    }
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -88,11 +91,7 @@
 }
 
 - (BOOL)isFlashOn {
-    AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-    if (device) {
-        return device.torchMode == AVCaptureFlashModeOn || AVCaptureTorchModeOn;
-    }
-    return NO;
+    return self.scanner.torchMode == MTBTorchModeOn;
 }
 
 - (BOOL)hasTorch {
@@ -104,21 +103,10 @@
 }
 
 - (void)toggleFlash:(BOOL)on {
-    AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-    if (!device) return;
-
-    NSError *err;
-    if (device.hasFlash && device.hasTorch) {
-        [device lockForConfiguration:&err];
-        if (err != nil) return;
-        if (on) {
-            device.flashMode = AVCaptureFlashModeOn;
-            device.torchMode = AVCaptureTorchModeOn;
-        } else {
-            device.flashMode = AVCaptureFlashModeOff;
-            device.torchMode = AVCaptureTorchModeOff;
-        }
-        [device unlockForConfiguration];
+    if(on) {
+        self.scanner.torchMode = MTBTorchModeOn;
+    } else {
+        self.scanner.torchMode = MTBTorchModeOff;
     }
 }
 
