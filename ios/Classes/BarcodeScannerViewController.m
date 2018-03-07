@@ -13,23 +13,38 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.previewView = [[UIView alloc] initWithFrame:self.view.bounds];
-    self.previewView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.previewView.frame = self.view.bounds;
+    
+    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+    [[NSNotificationCenter defaultCenter]
+     addObserver:self selector:@selector(orientationChanged:)
+     name:UIDeviceOrientationDidChangeNotification
+     object:[UIDevice currentDevice]];
+    
     [self.view addSubview:_previewView];
-    [self.view addConstraints:[NSLayoutConstraint
-            constraintsWithVisualFormat:@"V:[previewView]"
-                                options:NSLayoutFormatAlignAllBottom
-                                metrics:nil
-                                  views:@{@"previewView": _previewView}]];
-    [self.view addConstraints:[NSLayoutConstraint
-            constraintsWithVisualFormat:@"H:[previewView]"
-                                options:NSLayoutFormatAlignAllBottom
-                                metrics:nil
-                                  views:@{@"previewView": _previewView}]];
     self.scanner = [[MTBBarcodeScanner alloc] initWithPreviewView:_previewView];
+    
+    [self.view setAutoresizingMask:UIViewAutoresizingFlexibleHeight];
+    [self.view setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
+    [self.view setAutoresizingMask:UIViewAutoresizingFlexibleTopMargin];
+    [self.view setAutoresizingMask:UIViewAutoresizingFlexibleLeftMargin];
+    [self.view setAutoresizingMask:UIViewAutoresizingFlexibleRightMargin];
+    
+    [_previewView setAutoresizingMask:UIViewAutoresizingFlexibleHeight];
+    [_previewView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
+    [_previewView setAutoresizingMask:UIViewAutoresizingFlexibleTopMargin];
+    [_previewView setAutoresizingMask:UIViewAutoresizingFlexibleLeftMargin];
+    [_previewView setAutoresizingMask:UIViewAutoresizingFlexibleRightMargin];
+    
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancel)];
     if(self.hasTorch) {
         self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Flash On" style:UIBarButtonItemStylePlain target:self action:@selector(toggle)];
     }
+}
+
+- (void) orientationChanged:(NSNotification *)note
+{
+    self.previewView.frame = CGRectMake(0.0, 0.0, self.view.frame.size.height, self.view.frame.size.width);
 }
 
 - (void)viewDidAppear:(BOOL)animated {
